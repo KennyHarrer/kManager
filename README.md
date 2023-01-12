@@ -17,3 +17,7 @@ I want this project to:
 - do the aforementioned securely (to the best of my knowlege)
 - generate passwords
 - generate temp emails (either using public services ex. temp-mail.us, or with private servers ex. ${generatedRandomly}@your.domain)
+
+## Design
+
+I am using nodejs's native crypto library and crypto-js to encrypt the master key, authenticate the master key using challenge-response authentication (upon sign up the plain text master key is never sent to the server again), and ecrypt passwords and other information.

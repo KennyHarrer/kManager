@@ -1,5 +1,6 @@
 import styles from './index.module.scss';
-import Link from 'next/link'
+import Link from 'next/link';
+import CryptoJS from 'crypto-js';
 /*
 
 Really this page serves as a log in. No other pages will be accessable until you log in here.
@@ -7,9 +8,37 @@ Really this page serves as a log in. No other pages will be accessable until you
 */
 
 export default function Home() {
+    async function hashPassword(password) {
+        let hashedPassword = 'hashing method TBD';
+        return hashedPassword;
+    }
+
+    async function SignIn(form) {
+        let { username, password } = form;
+        let res = await (
+            await fetch('/api/login', { body: JSON.stringify({ username }), method: 'post' })
+        ).json();
+        if (res.error) {
+            return; // TODO: deal with this
+        }
+        let { challenge, nonce } = res;
+        let response = CryptoJS.HmacSHA256(hashPassword(password), nonce);
+        res = await (
+            await fetch('/api/auth', {
+                body: JSON.stringify({ response, challenge, nonce }),
+                method: 'post',
+            })
+        ).json();
+        if (res.error) {
+            //TODO: deal with this
+        }
+        let { token } = res;
+        //save token, move to password vault where we will request encrypted data, and decrypt it using the plain text password.
+    }
+
     return (
         <div className={styles.login}>
-            <form action="/api/auth" method="post">
+            <form onSubmit={SignIn} action="/api/auth" method="post">
                 <div>
                     <h1>Sign In</h1>
                     <div>
