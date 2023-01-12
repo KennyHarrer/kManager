@@ -1,0 +1,21 @@
+.login {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    > form > div {
+        border: 1px solid gray;
+        border-radius: 5px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        > *:not(:last-child) {
+            margin-bottom: 5px;
+        }
+        > div {
+            display: flex;
+            flex-direction: column;
+        }
+    }
+}
