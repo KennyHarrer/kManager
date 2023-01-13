@@ -1,19 +1,34 @@
 import crypto from 'crypto';
+let { getUserMasterHashAndSalt } = require('../../../app/auth/');
 
 const timeLimitInSeconds = 5;
 
 export default function (req, res) {
-    let { response, nonce, challenge } = req.body;
+    let { response, nonce, username } = req.body;
+    let saltAndHash = getUserMasterHashAndSalt(username);
+    if (!saltAndHash) {
+        //user does not exist.
+        return response.status(404).json({ error: 'Username not found' });
+    }
 
+    let { hash: passwordHash } = saltAndHash;
+
+    //determine if timeouted out or not
     const receivedTimestamp = parseInt(nonce.slice(-13).toString());
     const currentTimestamp = Date.now();
     const timeDiff = (currentTimestamp - receivedTimestamp) / 1000;
-    //timestamp is basically "signed" because the hash was created with the hashed password
+
     if (timeDiff > timeLimitInSeconds) {
-        return res.status(408).send('Request Timeout');
+        
+        return res.status(408).json({error:'Request Timeout'})
     }
 
-    const isValid = response.equals(challenge);
+    const challengeAnswer = crypto
+        .createHmac('sha256', nonceWithTimestamp)
+        .update(passwordHash)
+        .digest();
+
+    const isValid = response.equals(challengeAnswer);
 
     if (isValid) {
         //TODO: send auth JWT (allows sever to send client encrypted info)

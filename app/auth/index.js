@@ -1,4 +1,7 @@
+function getUserSalt(username) {
+    return user[username].salt
+}
 
-function getUserMasterHash(username) {
-    return hash
+function getUserHash(username) {
+    return user[username].hash
 }

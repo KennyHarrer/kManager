@@ -8,24 +8,26 @@ Really this page serves as a log in. No other pages will be accessable until you
 */
 
 export default function Home() {
-    async function hashPassword(password) {
+    async function hashPassword(password, salt) {
         let hashedPassword = 'hashing method TBD';
         return hashedPassword;
     }
 
     async function SignIn(form) {
         let { username, password } = form;
+
         let res = await (
             await fetch('/api/login', { body: JSON.stringify({ username }), method: 'post' })
         ).json();
         if (res.error) {
             return; // TODO: deal with this
         }
-        let { challenge, nonce } = res;
-        let response = CryptoJS.HmacSHA256(hashPassword(password), nonce);
+        let { nonce, salt } = res;
+        let hashedPassword = hashPassword(password, salt);
+        let response = CryptoJS.HmacSHA256(hashedPassword, nonce);
         res = await (
             await fetch('/api/auth', {
-                body: JSON.stringify({ response, challenge, nonce }),
+                body: JSON.stringify({ response, nonce, username }),
                 method: 'post',
             })
         ).json();

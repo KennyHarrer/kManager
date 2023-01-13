@@ -1,22 +1,17 @@
 import crypto from 'crypto';
-let { getUserMasterHash } = require('../../../app/auth/');
+let { getUserSalt } = require('../../../app/auth/');
 
 export default function (req, res) {
     let { username } = req.body;
-    let passwordHash = getUserMasterHash(username);
-    if (!hash) {
+    let salt = getUserSalt(username);
+    if (!salt) {
         //user does not exist.
-        return response.status(404).send('Username not found');
+        return response.status(404).send({ error: 'User not found' });
     }
 
     //generate challenge for client.
     const timestamp = Date.now();
-    const nonce = crypto.randomBytes(16);
-    const nonceWithTimestamp = Buffer.concat([nonce, Buffer.from(timestamp.toString())]);
-    const challenge = crypto
-        .createHmac('sha256', nonceWithTimestamp)
-        .update(passwordHash)
-        .digest();
+    const nonce = Buffer.concat([crypto.randomBytes(16), Buffer.from(timestamp.toString())]);
 
-    res.status(200).json({ challenge, nonce:nonceWithTimestamp });
+    res.status(200).json({ nonce, salt });
 }
